@@ -6,7 +6,7 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const model = "gemini-3-pro-preview";
 
-  // Using a more detailed prompt with an explicit scoring rubric and skill prioritization
+  // Using a more detailed prompt with an explicit scoring rubric, skill prioritization, and specific framework requirements
   const prompt = `
     PROFILE TO ANALYZE: ${profileUrl}
     
@@ -16,6 +16,11 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     1. Analyze the profile to identify the top 5 most predominant skills that define this person's professional value.
     2. Rank these 5 skills in order of prominence (from most essential/frequent to least).
     3. For each of these 5 skills, provide the automation potential (0-100) and the irreplaceable human value.
+
+    CAREER GUIDANCE REQUIREMENT:
+    1. Offer EXACTLY 3 distinct suggestions for the user's career growth.
+    2. Each suggestion MUST use a specific career framework. You can use established ones (e.g., Ikigai, Skill Stacking, T-Shaped Skills, Antifragility) or invent a highly relevant contextual framework (e.g., "The Empathy-Tech Bridge Framework").
+    3. Use easy, accessible, and encouraging language. Avoid jargon. Focus on actionable, human-centric steps.
 
     EVALUATION RUBRIC (Use these 4 dimensions to calculate the final Risk Score):
     1. Cognitive Routine (High Risk): Repetitive data processing, scheduling, or basic reporting.
@@ -53,7 +58,7 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     model,
     contents: { parts: contents },
     config: {
-      systemInstruction: "You are a professional Labor Economist and AI Impact Auditor. Your goal is to provide objective, data-driven, and highly consistent assessments. You prioritize analysis on the top 5 core skills of a professional and evaluate them against state-of-the-art AI automation capabilities.",
+      systemInstruction: "You are a top-tier Career Guidance Expert and AI Impact Auditor. You provide clear, actionable, and encouraging advice using proven or contextual frameworks. Your language is always easy to understand, accessible, and supportive.",
       tools: [{ googleSearch: {} }],
       // Deterministic settings to reduce variability
       temperature: 0,
@@ -96,6 +101,8 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
               strategicAdvice: { type: Type.STRING },
               frameworks: {
                 type: Type.ARRAY,
+                minItems: 3,
+                maxItems: 3,
                 items: {
                   type: Type.OBJECT,
                   properties: {

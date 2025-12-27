@@ -236,7 +236,7 @@ const App: React.FC = () => {
               <section className="bg-slate-900 text-white rounded-3xl shadow-2xl p-8 md:p-10 relative overflow-hidden">
                 <h2 className="text-2xl font-bold mb-8 flex items-center relative z-10">
                   <i className="fas fa-compass mr-3 text-indigo-400"></i>
-                  Evolution Strategy
+                  Recommendation; What can you do next?
                 </h2>
                 <div className="mb-10 relative z-10">
                   <p className="text-slate-300 leading-relaxed text-lg italic border-l-4 border-indigo-500 pl-6 py-2">
