@@ -6,28 +6,31 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const model = "gemini-3-pro-preview";
 
+  // Using a more detailed prompt with an explicit scoring rubric for consistency
   const prompt = `
-    I have a LinkedIn profile URL: ${profileUrl}.
+    PROFILE TO ANALYZE: ${profileUrl}
     
-    TASK:
-    1. Use Google Search to find the public information for this specific LinkedIn profile. 
-    2. Extract their current role, industry, key responsibilities, and listed skills.
-    3. Perform a comprehensive AI Risk Assessment for this specific professional.
-    4. Provide holistic career guidance using frameworks like Ikigai, Skill Stacking, or Antifragility.
+    TASK: Perform a RIGOROUS and REPRODUCIBLE AI Risk Assessment for this professional.
     
-    ARCHETYPE REQUIREMENT:
-    When describing the user's value, you must assign them a professional archetype (e.g., "The Polymath Synthesizer", "The Human-Tech Bridge", "The Strategic Orchestrator").
-    
-    CRITICAL: You must provide a simple, one-line explanation of what this archetype means in plain English.
-    Example: "The Translator: Someone who turns complex data into clear stories that everyone can understand."
+    EVALUATION RUBRIC (Use these 4 dimensions to calculate the final Risk Score):
+    1. Cognitive Routine (High Risk): Repetitive data processing, scheduling, or basic reporting.
+    2. Social Intelligence (Low Risk): High-stakes negotiation, therapy, mentorship, or complex stakeholder management.
+    3. Creative Synthesis (Low Risk): Developing novel solutions, multi-disciplinary strategy, or original artistic output.
+    4. Unstructured Physicality (Low Risk): Navigating complex, non-standardized physical environments.
 
-    OUTPUT REQUIREMENTS:
-    - Overall Risk Level: Low, Medium, or High.
-    - Risk Score: 0 to 100.
-    - humanCentricEdge: An object with the 'archetype' name and the 'explanation' string.
-    - guidance: strategicAdvice should also include an archetype and its explanation within the text.
-    
-    The response must be in valid JSON format.
+    SCORING STANDARDS:
+    - 0-30 (Low): Roles requiring high social empathy, physical dexterity, or unique creative synthesis.
+    - 31-70 (Medium): Roles with a mix of data-driven tasks and human-centric coordination.
+    - 71-100 (High): Roles primarily focused on information retrieval, synthesis of existing data, or routine administrative tasks.
+
+    ARCHETYPE REQUIREMENT:
+    Assign a professional archetype (e.g., "The Human-Tech Bridge", "The Strategic Orchestrator").
+    Provide a simple, one-line explanation of the archetype in plain English.
+
+    INSTRUCTIONS:
+    - Base the assessment on current AI capabilities (LLMs, Agentic workflows).
+    - Be objective. If the same profile is analyzed twice, the score must remain consistent.
+    - Ensure the output is valid JSON.
   `;
 
   const contents: any[] = [{ text: prompt }];
@@ -45,7 +48,11 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     model,
     contents: { parts: contents },
     config: {
+      systemInstruction: "You are a professional Labor Economist and AI Impact Auditor. Your goal is to provide objective, data-driven, and highly consistent assessments of career vulnerability to automation. Avoid flowery language; focus on technical task-replacement logic.",
       tools: [{ googleSearch: {} }],
+      // Deterministic settings to reduce variability
+      temperature: 0,
+      seed: 42,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
