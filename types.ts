@@ -20,7 +20,10 @@ export interface AssessmentResult {
   riskScore: number; // 0 to 100
   justification: string;
   skillsAnalysis: SkillImpact[];
-  humanCentricEdge: string;
+  humanCentricEdge: {
+    archetype: string;
+    explanation: string;
+  };
   guidance: {
     strategicAdvice: string;
     frameworks: CareerFramework[];

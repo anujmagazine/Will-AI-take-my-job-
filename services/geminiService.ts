@@ -12,16 +12,20 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     TASK:
     1. Use Google Search to find the public information for this specific LinkedIn profile. 
     2. Extract their current role, industry, key responsibilities, and listed skills.
-    3. If search results are limited, use the provided context from the URL path and any attached image data.
-    4. Perform a comprehensive AI Risk Assessment for this specific professional.
-    5. Provide holistic career guidance using frameworks like Ikigai or Antifragility.
+    3. Perform a comprehensive AI Risk Assessment for this specific professional.
+    4. Provide holistic career guidance using frameworks like Ikigai, Skill Stacking, or Antifragility.
     
+    ARCHETYPE REQUIREMENT:
+    When describing the user's value, you must assign them a professional archetype (e.g., "The Polymath Synthesizer", "The Human-Tech Bridge", "The Strategic Orchestrator").
+    
+    CRITICAL: You must provide a simple, one-line explanation of what this archetype means in plain English.
+    Example: "The Translator: Someone who turns complex data into clear stories that everyone can understand."
+
     OUTPUT REQUIREMENTS:
     - Overall Risk Level: Low, Medium, or High.
     - Risk Score: 0 to 100.
-    - Nuanced Justification.
-    - Breakdown of specific skills and their automation potential.
-    - Career evolution plan focusing on human-centric edges.
+    - humanCentricEdge: An object with the 'archetype' name and the 'explanation' string.
+    - guidance: strategicAdvice should also include an archetype and its explanation within the text.
     
     The response must be in valid JSON format.
   `;
@@ -63,7 +67,14 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
               required: ['skill', 'automationPotential', 'irreplaceableValue']
             }
           },
-          humanCentricEdge: { type: Type.STRING },
+          humanCentricEdge: {
+            type: Type.OBJECT,
+            properties: {
+              archetype: { type: Type.STRING },
+              explanation: { type: Type.STRING }
+            },
+            required: ['archetype', 'explanation']
+          },
           guidance: {
             type: Type.OBJECT,
             properties: {

@@ -40,7 +40,7 @@ const App: React.FC = () => {
     }
 
     if (!isValidUrl(profileUrl)) {
-      setError('Please enter a valid LinkedIn URL (e.g., https://linkedin.com/in/username).');
+      setError('Please enter a valid LinkedIn URL.');
       return;
     }
 
@@ -50,13 +50,12 @@ const App: React.FC = () => {
       const base64Image = imagePreview?.split(',')[1];
       const data = await analyzeJobRisk(profileUrl, base64Image);
       setResult(data);
-      // Scroll to result
       setTimeout(() => {
         document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } catch (err) {
       console.error(err);
-      setError('Analysis failed. The profile might be private or unreachable. Try uploading a screenshot instead.');
+      setError('Analysis failed. The profile might be private. Try uploading a screenshot.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -81,7 +80,7 @@ const App: React.FC = () => {
           Will <span className="gradient-text">AI</span> Take My Job?
         </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-          Enter your LinkedIn profile URL to get a professional AI risk assessment based on real-time web analysis and industry benchmarks.
+          Get a professional AI risk assessment based on your LinkedIn presence and global industry trends.
         </p>
       </header>
 
@@ -110,7 +109,7 @@ const App: React.FC = () => {
             <div className="flex flex-col items-center space-y-4">
               <div className="w-full flex items-center">
                 <div className="flex-grow border-t border-slate-200"></div>
-                <span className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Or enhance with context</span>
+                <span className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Optional context</span>
                 <div className="flex-grow border-t border-slate-200"></div>
               </div>
 
@@ -135,14 +134,13 @@ const App: React.FC = () => {
                   ) : (
                     <>
                       <i className="fas fa-camera text-slate-400 text-3xl mb-3 group-hover:text-indigo-500 transition-colors"></i>
-                      <span className="text-sm font-semibold text-slate-500">Upload Profile Screenshot</span>
-                      <p className="text-xs text-slate-400 mt-1">Improves accuracy for private profiles</p>
+                      <span className="text-sm font-semibold text-slate-500">Upload Screenshot</span>
                     </>
                   )}
                 </div>
                 <div className="flex items-center text-sm text-slate-500 leading-relaxed bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
                   <i className="fas fa-info-circle text-indigo-400 mr-3 text-lg shrink-0"></i>
-                  <span>Our AI uses <b>Google Search Grounding</b> to securely read your public professional presence and industry trajectory.</span>
+                  <span>We use <b>Google Search</b> to analyze your public profile and industry trajectory.</span>
                 </div>
               </div>
             </div>
@@ -161,12 +159,12 @@ const App: React.FC = () => {
               {isAnalyzing ? (
                 <>
                   <i className="fas fa-circle-notch fa-spin"></i>
-                  <span>Retrieving Profile & Analyzing...</span>
+                  <span>Analyzing Profile...</span>
                 </>
               ) : (
                 <>
                   <i className="fas fa-bolt"></i>
-                  <span>Run AI Risk Assessment</span>
+                  <span>Run Assessment</span>
                 </>
               )}
             </button>
@@ -201,7 +199,7 @@ const App: React.FC = () => {
                 <RiskGauge score={result.riskScore} level={result.overallRisk} />
                 <div className="mt-6 space-y-4">
                   <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-3 tracking-widest">Key Justification</h4>
+                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">The "Why"</h4>
                     <p className="text-sm text-slate-600 leading-relaxed font-medium">
                       {result.justification}
                     </p>
@@ -212,46 +210,43 @@ const App: React.FC = () => {
 
             <div className="md:col-span-2 space-y-8">
               <section className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-slate-800">Skills Vulnerability Index</h2>
-                    <p className="text-sm text-slate-500 mt-1">Specific analysis of your listed competencies.</p>
-                  </div>
-                  <div className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold">
-                    LIVE ANALYSIS
-                  </div>
-                </div>
+                <h2 className="text-2xl font-bold text-slate-800 mb-6">Skills Analysis</h2>
                 <SkillChart skills={result.skillsAnalysis} />
-                <div className="mt-10 p-6 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl text-white shadow-lg">
-                   <h3 className="text-lg font-bold mb-3 flex items-center">
-                     <i className="fas fa-fingerprint mr-2 text-indigo-200"></i> Your Human Advantage
+                
+                {/* Fixed "Human Advantage" Section */}
+                <div className="mt-10 p-8 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl text-white shadow-lg relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                     <i className="fas fa-fingerprint text-8xl"></i>
+                   </div>
+                   <h3 className="text-indigo-200 text-sm font-bold uppercase tracking-[0.2em] mb-4 flex items-center">
+                     <i className="fas fa-sparkles mr-2"></i> Your Human Advantage
                    </h3>
-                   <p className="text-indigo-50 leading-relaxed font-medium opacity-90">
-                     {result.humanCentricEdge}
-                   </p>
+                   <div className="space-y-4 relative z-10">
+                     <h2 className="text-3xl font-extrabold tracking-tight">
+                       {result.humanCentricEdge.archetype}
+                     </h2>
+                     <div className="h-1 w-12 bg-indigo-400/50 rounded-full"></div>
+                     <p className="text-lg text-indigo-50 font-medium leading-relaxed max-w-xl">
+                       {result.humanCentricEdge.explanation}
+                     </p>
+                   </div>
                 </div>
               </section>
 
               <section className="bg-slate-900 text-white rounded-3xl shadow-2xl p-8 md:p-10 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                 <h2 className="text-2xl font-bold mb-8 flex items-center relative z-10">
                   <i className="fas fa-compass mr-3 text-indigo-400"></i>
-                  Career Evolution Strategy
+                  Evolution Strategy
                 </h2>
-                
                 <div className="mb-10 relative z-10">
                   <p className="text-slate-300 leading-relaxed text-lg italic border-l-4 border-indigo-500 pl-6 py-2">
                     "{result.guidance.strategicAdvice}"
                   </p>
                 </div>
-
                 <div className="grid gap-6 relative z-10">
                   {result.guidance.frameworks.map((framework, idx) => (
-                    <div key={idx} className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:border-indigo-500/50 transition-all backdrop-blur-sm">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-indigo-400 font-bold text-xl">{framework.name}</h4>
-                        <i className="fas fa-layer-group text-slate-700"></i>
-                      </div>
+                    <div key={idx} className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6">
+                      <h4 className="text-indigo-400 font-bold text-xl mb-2">{framework.name}</h4>
                       <p className="text-slate-300 text-sm mb-5 leading-relaxed font-medium">{framework.concept}</p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {framework.actionItems.map((item, i) => (
@@ -272,37 +267,17 @@ const App: React.FC = () => {
                 </h2>
                 <div className="grid gap-4">
                   {result.guidance.positiveActionPlan.map((step, idx) => (
-                    <div key={idx} className="flex items-center space-x-5 p-5 rounded-2xl bg-slate-50 hover:bg-white border border-transparent hover:border-emerald-100 hover:shadow-lg hover:shadow-emerald-50 transition-all group">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                    <div key={idx} className="flex items-center space-x-5 p-5 rounded-2xl bg-slate-50 border border-transparent hover:border-emerald-100 transition-all">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg shrink-0">
                         {idx + 1}
                       </div>
                       <p className="text-slate-700 font-bold text-base">{step}</p>
                     </div>
                   ))}
                 </div>
-                <div className="mt-10 p-8 bg-emerald-50/50 rounded-3xl border border-emerald-100 flex items-center space-x-6">
-                  <div className="text-emerald-500 text-4xl">
-                    <i className="fas fa-shield-heart"></i>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-emerald-900 text-lg">AI-Adaptive Mindset</h4>
-                    <p className="text-emerald-700 text-sm mt-1 leading-relaxed">
-                      This assessment treats AI as an <b>augmentative force</b>. By following this roadmap, you are positioning yourself to leverage these tools rather than be competed against by them.
-                    </p>
-                  </div>
-                </div>
               </section>
             </div>
           </div>
-          
-          <footer className="text-center py-12 text-slate-400 text-sm border-t border-slate-100 mt-12">
-            <p className="font-medium">© 2024 Will AI Take My Job? Powered by Gemini 3 Pro & Google Search Grounding.</p>
-            <div className="flex justify-center space-x-6 mt-4">
-               <span className="flex items-center"><i className="fas fa-lock mr-1 text-xs"></i> Secure Analysis</span>
-               <span className="flex items-center"><i className="fas fa-globe mr-1 text-xs"></i> Real-time Grounding</span>
-               <span className="flex items-center"><i className="fas fa-user-tie mr-1 text-xs"></i> Professional Ethics</span>
-            </div>
-          </footer>
         </div>
       )}
     </div>
