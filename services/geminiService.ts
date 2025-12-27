@@ -6,12 +6,17 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const model = "gemini-3-pro-preview";
 
-  // Using a more detailed prompt with an explicit scoring rubric for consistency
+  // Using a more detailed prompt with an explicit scoring rubric and skill prioritization
   const prompt = `
     PROFILE TO ANALYZE: ${profileUrl}
     
-    TASK: Perform a RIGOROUS and REPRODUCIBLE AI Risk Assessment for this professional.
+    TASK: Perform a RIGOROUS, REPRODUCIBLE, and PRIORITIZED AI Risk Assessment for this professional.
     
+    SKILLS ANALYSIS REQUIREMENT:
+    1. Analyze the profile to identify the top 5 most predominant skills that define this person's professional value.
+    2. Rank these 5 skills in order of prominence (from most essential/frequent to least).
+    3. For each of these 5 skills, provide the automation potential (0-100) and the irreplaceable human value.
+
     EVALUATION RUBRIC (Use these 4 dimensions to calculate the final Risk Score):
     1. Cognitive Routine (High Risk): Repetitive data processing, scheduling, or basic reporting.
     2. Social Intelligence (Low Risk): High-stakes negotiation, therapy, mentorship, or complex stakeholder management.
@@ -29,7 +34,7 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
 
     INSTRUCTIONS:
     - Base the assessment on current AI capabilities (LLMs, Agentic workflows).
-    - Be objective. If the same profile is analyzed twice, the score must remain consistent.
+    - Be objective and consistent.
     - Ensure the output is valid JSON.
   `;
 
@@ -48,7 +53,7 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     model,
     contents: { parts: contents },
     config: {
-      systemInstruction: "You are a professional Labor Economist and AI Impact Auditor. Your goal is to provide objective, data-driven, and highly consistent assessments of career vulnerability to automation. Avoid flowery language; focus on technical task-replacement logic.",
+      systemInstruction: "You are a professional Labor Economist and AI Impact Auditor. Your goal is to provide objective, data-driven, and highly consistent assessments. You prioritize analysis on the top 5 core skills of a professional and evaluate them against state-of-the-art AI automation capabilities.",
       tools: [{ googleSearch: {} }],
       // Deterministic settings to reduce variability
       temperature: 0,
@@ -64,6 +69,8 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
           justification: { type: Type.STRING },
           skillsAnalysis: {
             type: Type.ARRAY,
+            minItems: 5,
+            maxItems: 5,
             items: {
               type: Type.OBJECT,
               properties: {
@@ -72,7 +79,8 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
                 irreplaceableValue: { type: Type.STRING }
               },
               required: ['skill', 'automationPotential', 'irreplaceableValue']
-            }
+            },
+            description: "Top 5 predominant skills, ordered by prominence from index 0."
           },
           humanCentricEdge: {
             type: Type.OBJECT,
