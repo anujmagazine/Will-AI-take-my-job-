@@ -1,0 +1,312 @@
+
+import React, { useState } from 'react';
+import { analyzeJobRisk } from './services/geminiService';
+import { AssessmentResult } from './types';
+import RiskGauge from './components/RiskGauge';
+import SkillChart from './components/SkillChart';
+
+const App: React.FC = () => {
+  const [profileUrl, setProfileUrl] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [result, setResult] = useState<AssessmentResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setImagePreview(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const isValidUrl = (url: string) => {
+    try {
+      const parsed = new URL(url);
+      return parsed.hostname.includes('linkedin.com');
+    } catch {
+      return false;
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!profileUrl.trim()) {
+      setError('Please enter a LinkedIn profile URL.');
+      return;
+    }
+
+    if (!isValidUrl(profileUrl)) {
+      setError('Please enter a valid LinkedIn URL (e.g., https://linkedin.com/in/username).');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setError(null);
+    try {
+      const base64Image = imagePreview?.split(',')[1];
+      const data = await analyzeJobRisk(profileUrl, base64Image);
+      setResult(data);
+      // Scroll to result
+      setTimeout(() => {
+        document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } catch (err) {
+      console.error(err);
+      setError('Analysis failed. The profile might be private or unreachable. Try uploading a screenshot instead.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const reset = () => {
+    setResult(null);
+    setProfileUrl('');
+    setImagePreview(null);
+    setError(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      {/* Header */}
+      <header className="text-center mb-12">
+        <div className="inline-flex items-center justify-center p-3 bg-indigo-100 rounded-2xl mb-4">
+          <i className="fas fa-brain text-indigo-600 text-3xl"></i>
+        </div>
+        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+          Will <span className="gradient-text">AI</span> Take My Job?
+        </h1>
+        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          Enter your LinkedIn profile URL to get a professional AI risk assessment based on real-time web analysis and industry benchmarks.
+        </p>
+      </header>
+
+      {/* Input Section */}
+      {!result && (
+        <section className="bg-white rounded-3xl shadow-xl shadow-slate-200/60 p-6 md:p-10 border border-slate-100">
+          <div className="space-y-8">
+            <div className="relative">
+              <label className="block text-sm font-semibold text-slate-700 mb-3 text-center">
+                LinkedIn Profile URL
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                  <i className="fab fa-linkedin text-xl"></i>
+                </div>
+                <input
+                  type="url"
+                  value={profileUrl}
+                  onChange={(e) => setProfileUrl(e.target.value)}
+                  placeholder="https://www.linkedin.com/in/your-profile"
+                  className="w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none text-slate-700 text-lg shadow-inner"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-full flex items-center">
+                <div className="flex-grow border-t border-slate-200"></div>
+                <span className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Or enhance with context</span>
+                <div className="flex-grow border-t border-slate-200"></div>
+              </div>
+
+              <div className="w-full grid md:grid-cols-2 gap-4">
+                <div className="relative border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 transition-colors group bg-slate-50/50 cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  {imagePreview ? (
+                    <div className="relative w-full h-24">
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+                      <button 
+                        onClick={(e) => { e.preventDefault(); setImagePreview(null); }}
+                        className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs shadow-lg"
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <i className="fas fa-camera text-slate-400 text-3xl mb-3 group-hover:text-indigo-500 transition-colors"></i>
+                      <span className="text-sm font-semibold text-slate-500">Upload Profile Screenshot</span>
+                      <p className="text-xs text-slate-400 mt-1">Improves accuracy for private profiles</p>
+                    </>
+                  )}
+                </div>
+                <div className="flex items-center text-sm text-slate-500 leading-relaxed bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
+                  <i className="fas fa-info-circle text-indigo-400 mr-3 text-lg shrink-0"></i>
+                  <span>Our AI uses <b>Google Search Grounding</b> to securely read your public professional presence and industry trajectory.</span>
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm flex items-center animate-pulse">
+                <i className="fas fa-exclamation-circle mr-2"></i> {error}
+              </div>
+            )}
+
+            <button
+              onClick={handleAnalyze}
+              disabled={isAnalyzing}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold py-5 rounded-2xl shadow-xl shadow-indigo-200 transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-3 text-lg"
+            >
+              {isAnalyzing ? (
+                <>
+                  <i className="fas fa-circle-notch fa-spin"></i>
+                  <span>Retrieving Profile & Analyzing...</span>
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-bolt"></i>
+                  <span>Run AI Risk Assessment</span>
+                </>
+              )}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Results Section */}
+      {result && (
+        <div id="result-section" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+             <div className="flex items-center space-x-4">
+               <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-100">
+                 {result.role.charAt(0)}
+               </div>
+               <div>
+                 <h3 className="font-bold text-slate-900 text-xl leading-tight">{result.role}</h3>
+                 <p className="text-sm text-slate-500 mt-1 font-medium uppercase tracking-widest">{result.industry}</p>
+               </div>
+             </div>
+             <button onClick={reset} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold transition-colors">
+               <i className="fas fa-arrow-left mr-2"></i> Back
+             </button>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="md:col-span-1 bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+              <div className="p-6">
+                <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                  <i className="fas fa-gauge-high mr-2 text-indigo-500"></i> Automation Risk
+                </h2>
+                <RiskGauge score={result.riskScore} level={result.overallRisk} />
+                <div className="mt-6 space-y-4">
+                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-3 tracking-widest">Key Justification</h4>
+                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                      {result.justification}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 space-y-8">
+              <section className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8">
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-800">Skills Vulnerability Index</h2>
+                    <p className="text-sm text-slate-500 mt-1">Specific analysis of your listed competencies.</p>
+                  </div>
+                  <div className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold">
+                    LIVE ANALYSIS
+                  </div>
+                </div>
+                <SkillChart skills={result.skillsAnalysis} />
+                <div className="mt-10 p-6 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl text-white shadow-lg">
+                   <h3 className="text-lg font-bold mb-3 flex items-center">
+                     <i className="fas fa-fingerprint mr-2 text-indigo-200"></i> Your Human Advantage
+                   </h3>
+                   <p className="text-indigo-50 leading-relaxed font-medium opacity-90">
+                     {result.humanCentricEdge}
+                   </p>
+                </div>
+              </section>
+
+              <section className="bg-slate-900 text-white rounded-3xl shadow-2xl p-8 md:p-10 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                <h2 className="text-2xl font-bold mb-8 flex items-center relative z-10">
+                  <i className="fas fa-compass mr-3 text-indigo-400"></i>
+                  Career Evolution Strategy
+                </h2>
+                
+                <div className="mb-10 relative z-10">
+                  <p className="text-slate-300 leading-relaxed text-lg italic border-l-4 border-indigo-500 pl-6 py-2">
+                    "{result.guidance.strategicAdvice}"
+                  </p>
+                </div>
+
+                <div className="grid gap-6 relative z-10">
+                  {result.guidance.frameworks.map((framework, idx) => (
+                    <div key={idx} className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:border-indigo-500/50 transition-all backdrop-blur-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-indigo-400 font-bold text-xl">{framework.name}</h4>
+                        <i className="fas fa-layer-group text-slate-700"></i>
+                      </div>
+                      <p className="text-slate-300 text-sm mb-5 leading-relaxed font-medium">{framework.concept}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {framework.actionItems.map((item, i) => (
+                          <div key={i} className="flex items-start text-xs text-slate-400 bg-slate-900/40 p-3 rounded-xl border border-slate-700/30">
+                            <i className="fas fa-rocket text-indigo-500 mt-0.5 mr-2 shrink-0"></i>
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8">
+                <h2 className="text-xl font-bold text-slate-800 mb-8 flex items-center">
+                  <i className="fas fa-list-check mr-2 text-emerald-500"></i> Immediate Roadmap
+                </h2>
+                <div className="grid gap-4">
+                  {result.guidance.positiveActionPlan.map((step, idx) => (
+                    <div key={idx} className="flex items-center space-x-5 p-5 rounded-2xl bg-slate-50 hover:bg-white border border-transparent hover:border-emerald-100 hover:shadow-lg hover:shadow-emerald-50 transition-all group">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                        {idx + 1}
+                      </div>
+                      <p className="text-slate-700 font-bold text-base">{step}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-10 p-8 bg-emerald-50/50 rounded-3xl border border-emerald-100 flex items-center space-x-6">
+                  <div className="text-emerald-500 text-4xl">
+                    <i className="fas fa-shield-heart"></i>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-emerald-900 text-lg">AI-Adaptive Mindset</h4>
+                    <p className="text-emerald-700 text-sm mt-1 leading-relaxed">
+                      This assessment treats AI as an <b>augmentative force</b>. By following this roadmap, you are positioning yourself to leverage these tools rather than be competed against by them.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+          
+          <footer className="text-center py-12 text-slate-400 text-sm border-t border-slate-100 mt-12">
+            <p className="font-medium">© 2024 Will AI Take My Job? Powered by Gemini 3 Pro & Google Search Grounding.</p>
+            <div className="flex justify-center space-x-6 mt-4">
+               <span className="flex items-center"><i className="fas fa-lock mr-1 text-xs"></i> Secure Analysis</span>
+               <span className="flex items-center"><i className="fas fa-globe mr-1 text-xs"></i> Real-time Grounding</span>
+               <span className="flex items-center"><i className="fas fa-user-tie mr-1 text-xs"></i> Professional Ethics</span>
+            </div>
+          </footer>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
