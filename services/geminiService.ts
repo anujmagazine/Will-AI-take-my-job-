@@ -16,9 +16,14 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     2. CURRENT ROLE: Identify the MOST RECENT or CURRENT professional role. Ensure the 'role' and 'industry' fields reflect their current career stage.
 
     SKILLS ANALYSIS REQUIREMENT:
-    1. Identify the top 5 most predominant skills that define this person's professional value right now.
-    2. Rank these 5 skills in order of prominence (from most essential/frequent to least).
-    3. For each, provide automation potential (0-100) and the irreplaceable human value.
+    1. Identify the top 5 most predominant skills. 
+    2. CRITERIA FOR PREDOMINANCE: 
+       - Frequency of mention in experience descriptions.
+       - Level of responsibility/seniority associated with the skill.
+       - Strategic importance to their current job title and industry.
+    3. Rank these 5 skills in order of prominence (from most essential/frequent to least).
+    4. For each, provide automation potential (0-100) and the irreplaceable human value.
+    5. PROVIDE A SKILLS METHODOLOGY: Write a short, 1-2 sentence note explaining how these specific 5 skills were identified (e.g., "Identified based on recurring themes in your recent project lead roles and core technical competencies expected in [Industry]").
 
     CAREER GUIDANCE REQUIREMENT:
     1. Offer EXACTLY 3 distinct suggestions for career growth.
@@ -52,7 +57,7 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     model,
     contents: { parts: contents },
     config: {
-      systemInstruction: "You are a top-tier Career Guidance Expert and AI Impact Auditor. You provide clear, objective assessments. You MUST extract the person's name and focus on their current/most recent professional role. Use temperature 0 for maximum consistency.",
+      systemInstruction: "You are a top-tier Career Guidance Expert and AI Impact Auditor. You provide clear, objective assessments. You MUST extract the person's name and focus on their current/most recent professional role. Determine skills through frequency, seniority level, and industry impact. Use temperature 0 for maximum consistency.",
       tools: [{ googleSearch: {} }],
       temperature: 0,
       seed: 42,
@@ -80,6 +85,7 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
               required: ['skill', 'automationPotential', 'irreplaceableValue']
             }
           },
+          skillsMethodology: { type: Type.STRING },
           humanCentricEdge: {
             type: Type.OBJECT,
             properties: {
@@ -111,7 +117,7 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
             required: ['strategicAdvice', 'frameworks', 'positiveActionPlan']
           }
         },
-        required: ['name', 'role', 'industry', 'overallRisk', 'riskScore', 'justification', 'skillsAnalysis', 'humanCentricEdge', 'guidance']
+        required: ['name', 'role', 'industry', 'overallRisk', 'riskScore', 'justification', 'skillsAnalysis', 'skillsMethodology', 'humanCentricEdge', 'guidance']
       }
     }
   });

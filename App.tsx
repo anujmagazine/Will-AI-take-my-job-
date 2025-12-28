@@ -222,6 +222,12 @@ const App: React.FC = () => {
                 </div>
                 <SkillChart skills={result.skillsAnalysis} />
                 
+                {/* Methodology Note */}
+                <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 italic text-xs text-slate-500 leading-relaxed">
+                  <i className="fas fa-microscope mr-2 text-indigo-400"></i>
+                  <strong>How we identified these skills:</strong> {result.skillsMethodology}
+                </div>
+                
                 <div className="mt-10 p-8 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl text-white shadow-lg relative overflow-hidden group">
                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
                      <i className="fas fa-fingerprint text-9xl"></i>

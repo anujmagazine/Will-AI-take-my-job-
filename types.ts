@@ -21,6 +21,7 @@ export interface AssessmentResult {
   riskScore: number; // 0 to 100
   justification: string;
   skillsAnalysis: SkillImpact[];
+  skillsMethodology: string; // Brief explanation of skill extraction logic
   humanCentricEdge: {
     archetype: string;
     explanation: string;
