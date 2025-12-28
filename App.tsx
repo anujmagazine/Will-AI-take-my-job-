@@ -55,7 +55,7 @@ const App: React.FC = () => {
       }, 100);
     } catch (err) {
       console.error(err);
-      setError('Analysis failed. The profile might be private. Try uploading a screenshot.');
+      setError('Analysis failed. The profile might be private or unreachable. Try uploading a screenshot.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -140,7 +140,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex items-center text-sm text-slate-500 leading-relaxed bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
                   <i className="fas fa-info-circle text-indigo-400 mr-3 text-lg shrink-0"></i>
-                  <span>We use <b>Google Search</b> to analyze your public profile and industry trajectory.</span>
+                  <span>We use <b>Google Search</b> to analyze public profile data and current market trends.</span>
                 </div>
               </div>
             </div>
@@ -175,31 +175,37 @@ const App: React.FC = () => {
       {/* Results Section */}
       {result && (
         <div id="result-section" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-             <div className="flex items-center space-x-4">
-               <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-100">
-                 {result.role.charAt(0)}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-8 rounded-3xl shadow-sm border border-slate-100 gap-6">
+             <div className="flex items-center space-x-6">
+               <div className="w-20 h-20 rounded-3xl bg-indigo-600 flex items-center justify-center text-white font-bold text-4xl shadow-2xl shadow-indigo-200 shrink-0">
+                 {result.name.charAt(0)}
                </div>
                <div>
-                 <h3 className="font-bold text-slate-900 text-xl leading-tight">{result.role}</h3>
-                 <p className="text-sm text-slate-500 mt-1 font-medium uppercase tracking-widest">{result.industry}</p>
+                 <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight">
+                   {result.name}
+                 </h2>
+                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+                   <p className="text-lg font-bold text-indigo-600">{result.role}</p>
+                   <span className="hidden md:inline text-slate-300">•</span>
+                   <p className="text-sm text-slate-500 font-semibold uppercase tracking-widest">{result.industry}</p>
+                 </div>
                </div>
              </div>
-             <button onClick={reset} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold transition-colors">
-               <i className="fas fa-arrow-left mr-2"></i> Back
+             <button onClick={reset} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-black transition-all transform hover:scale-105 active:scale-95">
+               <i className="fas fa-arrow-left mr-2"></i> NEW ASSESSMENT
              </button>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="md:col-span-1 bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center">
-                  <i className="fas fa-gauge-high mr-2 text-indigo-500"></i> Automation Risk
+            <div className="md:col-span-1 bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden h-fit">
+              <div className="p-8">
+                <h2 className="text-xl font-black text-slate-800 mb-8 flex items-center">
+                  <i className="fas fa-gauge-high mr-3 text-indigo-500"></i> RISK SCORE
                 </h2>
                 <RiskGauge score={result.riskScore} level={result.overallRisk} />
-                <div className="mt-6 space-y-4">
-                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">The "Why"</h4>
+                <div className="mt-8 space-y-4">
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                    <h4 className="text-xs font-black text-slate-400 uppercase mb-3 tracking-widest">Assessment Logic</h4>
                     <p className="text-sm text-slate-600 leading-relaxed font-medium">
                       {result.justification}
                     </p>
@@ -210,49 +216,55 @@ const App: React.FC = () => {
 
             <div className="md:col-span-2 space-y-8">
               <section className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8">
-                <h2 className="text-2xl font-bold text-slate-800 mb-6">Skills Analysis</h2>
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-2xl font-black text-slate-800">Top Predominant Skills</h2>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Ordered by Prominence</span>
+                </div>
                 <SkillChart skills={result.skillsAnalysis} />
                 
-                {/* Fixed "Human Advantage" Section */}
                 <div className="mt-10 p-8 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl text-white shadow-lg relative overflow-hidden group">
                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                     <i className="fas fa-fingerprint text-8xl"></i>
+                     <i className="fas fa-fingerprint text-9xl"></i>
                    </div>
-                   <h3 className="text-indigo-200 text-sm font-bold uppercase tracking-[0.2em] mb-4 flex items-center">
-                     <i className="fas fa-sparkles mr-2"></i> Your Human Advantage
+                   <h3 className="text-indigo-200 text-sm font-black uppercase tracking-[0.2em] mb-4 flex items-center">
+                     <i className="fas fa-sparkles mr-2"></i> HUMAN ADVANTAGE
                    </h3>
                    <div className="space-y-4 relative z-10">
-                     <h2 className="text-3xl font-extrabold tracking-tight">
+                     <h2 className="text-3xl font-black tracking-tight">
                        {result.humanCentricEdge.archetype}
                      </h2>
-                     <div className="h-1 w-12 bg-indigo-400/50 rounded-full"></div>
-                     <p className="text-lg text-indigo-50 font-medium leading-relaxed max-w-xl">
+                     <div className="h-1 w-16 bg-indigo-400/50 rounded-full"></div>
+                     <p className="text-xl text-indigo-50 font-medium leading-relaxed max-w-2xl">
                        {result.humanCentricEdge.explanation}
                      </p>
                    </div>
                 </div>
               </section>
 
-              <section className="bg-slate-900 text-white rounded-3xl shadow-2xl p-8 md:p-10 relative overflow-hidden">
-                <h2 className="text-2xl font-bold mb-8 flex items-center relative z-10">
-                  <i className="fas fa-compass mr-3 text-indigo-400"></i>
+              <section className="bg-slate-900 text-white rounded-3xl shadow-2xl p-8 md:p-12 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] -z-0"></div>
+                <h2 className="text-3xl font-black mb-10 flex items-center relative z-10">
+                  <i className="fas fa-compass mr-4 text-indigo-400"></i>
                   Recommendation; What can you do next?
                 </h2>
-                <div className="mb-10 relative z-10">
-                  <p className="text-slate-300 leading-relaxed text-lg italic border-l-4 border-indigo-500 pl-6 py-2">
+                <div className="mb-12 relative z-10">
+                  <p className="text-slate-300 leading-relaxed text-xl italic border-l-4 border-indigo-500 pl-8 py-2 max-w-3xl">
                     "{result.guidance.strategicAdvice}"
                   </p>
                 </div>
-                <div className="grid gap-6 relative z-10">
+                <div className="grid gap-8 relative z-10">
                   {result.guidance.frameworks.map((framework, idx) => (
-                    <div key={idx} className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6">
-                      <h4 className="text-indigo-400 font-bold text-xl mb-2">{framework.name}</h4>
-                      <p className="text-slate-300 text-sm mb-5 leading-relaxed font-medium">{framework.concept}</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div key={idx} className="bg-slate-800/40 border border-slate-700/50 rounded-3xl p-8 hover:bg-slate-800/60 transition-colors">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+                        <h4 className="text-indigo-400 font-black text-2xl">{framework.name}</h4>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] bg-slate-900/50 px-3 py-1 rounded-full border border-slate-700/50 w-fit">Career Framework</span>
+                      </div>
+                      <p className="text-slate-200 text-base mb-8 leading-relaxed font-medium">{framework.concept}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {framework.actionItems.map((item, i) => (
-                          <div key={i} className="flex items-start text-xs text-slate-400 bg-slate-900/40 p-3 rounded-xl border border-slate-700/30">
-                            <i className="fas fa-rocket text-indigo-500 mt-0.5 mr-2 shrink-0"></i>
-                            {item}
+                          <div key={i} className="flex items-start text-xs text-slate-400 bg-slate-900/60 p-4 rounded-2xl border border-slate-700/30 hover:border-indigo-500/30 transition-colors">
+                            <i className="fas fa-check-circle text-indigo-500 mt-1 mr-3 shrink-0"></i>
+                            <span className="leading-relaxed">{item}</span>
                           </div>
                         ))}
                       </div>
@@ -262,16 +274,16 @@ const App: React.FC = () => {
               </section>
 
               <section className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8">
-                <h2 className="text-xl font-bold text-slate-800 mb-8 flex items-center">
-                  <i className="fas fa-list-check mr-2 text-emerald-500"></i> Immediate Roadmap
+                <h2 className="text-2xl font-black text-slate-800 mb-10 flex items-center">
+                  <i className="fas fa-list-check mr-3 text-emerald-500"></i> Immediate Roadmap
                 </h2>
-                <div className="grid gap-4">
+                <div className="grid md:grid-cols-2 gap-6">
                   {result.guidance.positiveActionPlan.map((step, idx) => (
-                    <div key={idx} className="flex items-center space-x-5 p-5 rounded-2xl bg-slate-50 border border-transparent hover:border-emerald-100 transition-all">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg shrink-0">
+                    <div key={idx} className="flex items-start space-x-6 p-6 rounded-3xl bg-slate-50 border border-transparent hover:border-emerald-100 hover:bg-emerald-50/30 transition-all group">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-black text-xl shrink-0 group-hover:scale-110 transition-transform shadow-sm">
                         {idx + 1}
                       </div>
-                      <p className="text-slate-700 font-bold text-base">{step}</p>
+                      <p className="text-slate-700 font-bold text-lg leading-snug pt-2">{step}</p>
                     </div>
                   ))}
                 </div>

@@ -14,6 +14,7 @@ export interface CareerFramework {
 }
 
 export interface AssessmentResult {
+  name: string;
   role: string;
   industry: string;
   overallRisk: RiskLevel;

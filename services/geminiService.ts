@@ -6,41 +6,35 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const model = "gemini-3-pro-preview";
 
-  // Using a more detailed prompt with an explicit scoring rubric, skill prioritization, and specific framework requirements
   const prompt = `
     PROFILE TO ANALYZE: ${profileUrl}
     
-    TASK: Perform a RIGOROUS, REPRODUCIBLE, and PRIORITIZED AI Risk Assessment for this professional.
+    TASK: Perform a RIGOROUS, REPRODUCIBLE, and PERSONALIZED AI Risk Assessment.
     
+    EXTRACTION REQUIREMENTS:
+    1. NAME: Extract the person's full name clearly from the profile.
+    2. CURRENT ROLE: Identify the MOST RECENT or CURRENT professional role. Ensure the 'role' and 'industry' fields reflect their current career stage.
+
     SKILLS ANALYSIS REQUIREMENT:
-    1. Analyze the profile to identify the top 5 most predominant skills that define this person's professional value.
+    1. Identify the top 5 most predominant skills that define this person's professional value right now.
     2. Rank these 5 skills in order of prominence (from most essential/frequent to least).
-    3. For each of these 5 skills, provide the automation potential (0-100) and the irreplaceable human value.
+    3. For each, provide automation potential (0-100) and the irreplaceable human value.
 
     CAREER GUIDANCE REQUIREMENT:
-    1. Offer EXACTLY 3 distinct suggestions for the user's career growth.
-    2. Each suggestion MUST use a specific career framework. You can use established ones (e.g., Ikigai, Skill Stacking, T-Shaped Skills, Antifragility) or invent a highly relevant contextual framework (e.g., "The Empathy-Tech Bridge Framework").
-    3. Use easy, accessible, and encouraging language. Avoid jargon. Focus on actionable, human-centric steps.
+    1. Offer EXACTLY 3 distinct suggestions for career growth.
+    2. Each MUST use a specific career framework (e.g., Ikigai, Skill Stacking, T-Shaped, or a relevant invented one).
+    3. Use easy, accessible, and encouraging language. Avoid jargon.
 
-    EVALUATION RUBRIC (Use these 4 dimensions to calculate the final Risk Score):
-    1. Cognitive Routine (High Risk): Repetitive data processing, scheduling, or basic reporting.
-    2. Social Intelligence (Low Risk): High-stakes negotiation, therapy, mentorship, or complex stakeholder management.
-    3. Creative Synthesis (Low Risk): Developing novel solutions, multi-disciplinary strategy, or original artistic output.
-    4. Unstructured Physicality (Low Risk): Navigating complex, non-standardized physical environments.
-
-    SCORING STANDARDS:
-    - 0-30 (Low): Roles requiring high social empathy, physical dexterity, or unique creative synthesis.
-    - 31-70 (Medium): Roles with a mix of data-driven tasks and human-centric coordination.
-    - 71-100 (High): Roles primarily focused on information retrieval, synthesis of existing data, or routine administrative tasks.
-
-    ARCHETYPE REQUIREMENT:
-    Assign a professional archetype (e.g., "The Human-Tech Bridge", "The Strategic Orchestrator").
-    Provide a simple, one-line explanation of the archetype in plain English.
+    EVALUATION RUBRIC:
+    - Cognitive Routine (High Risk)
+    - Social Intelligence (Low Risk)
+    - Creative Synthesis (Low Risk)
+    - Unstructured Physicality (Low Risk)
 
     INSTRUCTIONS:
-    - Base the assessment on current AI capabilities (LLMs, Agentic workflows).
+    - Base assessment on current AI capabilities (LLMs, Agents).
     - Be objective and consistent.
-    - Ensure the output is valid JSON.
+    - Ensure output is valid JSON.
   `;
 
   const contents: any[] = [{ text: prompt }];
@@ -58,15 +52,15 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     model,
     contents: { parts: contents },
     config: {
-      systemInstruction: "You are a top-tier Career Guidance Expert and AI Impact Auditor. You provide clear, actionable, and encouraging advice using proven or contextual frameworks. Your language is always easy to understand, accessible, and supportive.",
+      systemInstruction: "You are a top-tier Career Guidance Expert and AI Impact Auditor. You provide clear, objective assessments. You MUST extract the person's name and focus on their current/most recent professional role. Use temperature 0 for maximum consistency.",
       tools: [{ googleSearch: {} }],
-      // Deterministic settings to reduce variability
       temperature: 0,
       seed: 42,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
         properties: {
+          name: { type: Type.STRING },
           role: { type: Type.STRING },
           industry: { type: Type.STRING },
           overallRisk: { type: Type.STRING, enum: ['Low', 'Medium', 'High'] },
@@ -84,8 +78,7 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
                 irreplaceableValue: { type: Type.STRING }
               },
               required: ['skill', 'automationPotential', 'irreplaceableValue']
-            },
-            description: "Top 5 predominant skills, ordered by prominence from index 0."
+            }
           },
           humanCentricEdge: {
             type: Type.OBJECT,
@@ -118,11 +111,10 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
             required: ['strategicAdvice', 'frameworks', 'positiveActionPlan']
           }
         },
-        required: ['role', 'industry', 'overallRisk', 'riskScore', 'justification', 'skillsAnalysis', 'humanCentricEdge', 'guidance']
+        required: ['name', 'role', 'industry', 'overallRisk', 'riskScore', 'justification', 'skillsAnalysis', 'humanCentricEdge', 'guidance']
       }
     }
   });
 
-  const result = JSON.parse(response.text || "{}") as AssessmentResult;
-  return result;
+  return JSON.parse(response.text || "{}") as AssessmentResult;
 };
