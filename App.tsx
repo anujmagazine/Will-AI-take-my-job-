@@ -1,28 +1,19 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { analyzeJobRisk } from './services/geminiService';
 import { AssessmentResult } from './types';
 import RiskGauge from './components/RiskGauge';
 import SkillChart from './components/SkillChart';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 const App: React.FC = () => {
   const [profileUrl, setProfileUrl] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setImagePreview(base64String);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const isValidUrl = (url: string) => {
     try {
@@ -47,24 +38,60 @@ const App: React.FC = () => {
     setIsAnalyzing(true);
     setError(null);
     try {
-      const base64Image = imagePreview?.split(',')[1];
-      const data = await analyzeJobRisk(profileUrl, base64Image);
+      const data = await analyzeJobRisk(profileUrl);
       setResult(data);
       setTimeout(() => {
         document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } catch (err) {
       console.error(err);
-      setError('Analysis failed. The profile might be private or unreachable. Try uploading a screenshot.');
+      setError('Analysis failed. The profile might be private or unreachable. Please ensure the URL is public.');
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const downloadPDF = async () => {
+    if (!resultRef.current || !result) return;
+    setIsExporting(true);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const canvas = await html2canvas(resultRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#f8fafc',
+        ignoreElements: (element) => {
+          return element.classList.contains('no-export');
+        }
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width / 2, canvas.height / 2]
+      });
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`AI-Risk-Assessment-${result.name.replace(/\s+/g, '-')}.pdf`);
+    } catch (err) {
+      console.error('PDF generation error:', err);
+      alert('Could not generate PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
   const reset = () => {
     setResult(null);
     setProfileUrl('');
-    setImagePreview(null);
     setError(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -107,40 +134,17 @@ const App: React.FC = () => {
             </div>
 
             <div className="flex flex-col items-center space-y-4">
-              <div className="w-full flex items-center">
-                <div className="flex-grow border-t border-slate-200"></div>
-                <span className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Optional context</span>
-                <div className="flex-grow border-t border-slate-200"></div>
-              </div>
-
-              <div className="w-full grid md:grid-cols-2 gap-4">
-                <div className="relative border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-indigo-400 transition-colors group bg-slate-50/50 cursor-pointer">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  {imagePreview ? (
-                    <div className="relative w-full h-24">
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-contain rounded-lg" />
-                      <button 
-                        onClick={(e) => { e.preventDefault(); setImagePreview(null); }}
-                        className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs shadow-lg"
-                      >
-                        <i className="fas fa-times"></i>
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <i className="fas fa-camera text-slate-400 text-3xl mb-3 group-hover:text-indigo-500 transition-colors"></i>
-                      <span className="text-sm font-semibold text-slate-500">Upload Screenshot</span>
-                    </>
-                  )}
-                </div>
-                <div className="flex items-center text-sm text-slate-500 leading-relaxed bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
-                  <i className="fas fa-info-circle text-indigo-400 mr-3 text-lg shrink-0"></i>
-                  <span>We use <b>Google Search</b> to analyze public profile data and current market trends.</span>
+              <div className="w-full bg-indigo-50/40 p-6 rounded-3xl border border-indigo-100 shadow-sm">
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-1 shadow-md shadow-indigo-200">
+                    <i className="fas fa-magnifying-glass-chart"></i>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-indigo-900 font-bold text-base">Real-Time Industry Intelligence</h3>
+                    <p className="text-sm text-indigo-700/80 leading-relaxed font-medium">
+                      Our engine leverages <strong>Google Search Grounding</strong> to cross-reference your LinkedIn presence with live industry reports, emerging AI capabilities, and real-time labor market trends. This ensures your assessment isn't just a static guess, but a data-driven forecast of your role's trajectory.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -174,7 +178,7 @@ const App: React.FC = () => {
 
       {/* Results Section */}
       {result && (
-        <div id="result-section" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div id="result-section" ref={resultRef} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-8 rounded-3xl shadow-sm border border-slate-100 gap-6">
              <div className="flex items-center space-x-6">
                <div className="w-20 h-20 rounded-3xl bg-indigo-600 flex items-center justify-center text-white font-bold text-4xl shadow-2xl shadow-indigo-200 shrink-0">
@@ -191,9 +195,26 @@ const App: React.FC = () => {
                  </div>
                </div>
              </div>
-             <button onClick={reset} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-black transition-all transform hover:scale-105 active:scale-95">
-               <i className="fas fa-arrow-left mr-2"></i> NEW ASSESSMENT
-             </button>
+             <div className="flex items-center space-x-3 no-export">
+               <button 
+                 onClick={downloadPDF} 
+                 disabled={isExporting}
+                 className="px-6 py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-2xl text-sm font-black transition-all flex items-center gap-2 border border-indigo-100"
+               >
+                 {isExporting ? (
+                   <i className="fas fa-spinner fa-spin"></i>
+                 ) : (
+                   <i className="fas fa-file-pdf"></i>
+                 )}
+                 {isExporting ? 'Preparing PDF...' : 'Download PDF'}
+               </button>
+               <button 
+                 onClick={reset} 
+                 className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-black transition-all transform hover:scale-105 active:scale-95"
+               >
+                 <i className="fas fa-arrow-left mr-2"></i> NEW
+               </button>
+             </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">

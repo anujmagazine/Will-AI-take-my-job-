@@ -2,7 +2,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentResult } from "../types";
 
-export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): Promise<AssessmentResult> => {
+export const analyzeJobRisk = async (profileUrl: string): Promise<AssessmentResult> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const model = "gemini-3-pro-preview";
 
@@ -42,20 +42,9 @@ export const analyzeJobRisk = async (profileUrl: string, base64Image?: string): 
     - Ensure output is valid JSON.
   `;
 
-  const contents: any[] = [{ text: prompt }];
-  
-  if (base64Image) {
-    contents.push({
-      inlineData: {
-        mimeType: 'image/jpeg',
-        data: base64Image
-      }
-    });
-  }
-
   const response = await ai.models.generateContent({
     model,
-    contents: { parts: contents },
+    contents: [{ text: prompt }],
     config: {
       systemInstruction: "You are a top-tier Career Guidance Expert and AI Impact Auditor. You provide clear, objective assessments. You MUST extract the person's name and focus on their current/most recent professional role. Determine skills through frequency, seniority level, and industry impact. Use temperature 0 for maximum consistency.",
       tools: [{ googleSearch: {} }],
