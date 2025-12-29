@@ -241,12 +241,17 @@ const App: React.FC = () => {
                   <h2 className="text-2xl font-black text-slate-800">Top Predominant Skills</h2>
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Ordered by Prominence</span>
                 </div>
+                
                 <SkillChart skills={result.skillsAnalysis} />
                 
                 {/* Methodology Note */}
-                <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 italic text-xs text-slate-500 leading-relaxed">
-                  <i className="fas fa-microscope mr-2 text-indigo-400"></i>
-                  <strong>How we identified these skills:</strong> {result.skillsMethodology}
+                <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 italic text-xs text-slate-500 leading-relaxed relative">
+                  <div className="flex items-start">
+                    <i className="fas fa-microscope mr-3 text-indigo-400 text-base"></i>
+                    <div>
+                      <strong>How we identified these skills:</strong> {result.skillsMethodology}
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="mt-10 p-8 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl text-white shadow-lg relative overflow-hidden group">
