@@ -13,7 +13,8 @@ export const analyzeJobRisk = async (profileUrl: string): Promise<AssessmentResu
     
     EXTRACTION REQUIREMENTS:
     1. NAME: Extract the person's full name clearly from the profile.
-    2. CURRENT ROLE: Identify the MOST RECENT or CURRENT professional role. Ensure the 'role' and 'industry' fields reflect their current career stage.
+    2. CURRENT ROLE: Identify the CURRENT headline title or MOST RECENT job title explicitly mentioned on the profile. Ensure the 'role' field reflects this specific professional title.
+    3. INDUSTRY: Identify the primary industry they operate in based on their work history.
 
     SKILLS ANALYSIS REQUIREMENT:
     1. Identify the top 5 most predominant skills. 

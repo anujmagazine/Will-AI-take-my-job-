@@ -104,8 +104,8 @@ const App: React.FC = () => {
           <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
             Will <span className="gradient-text">AI</span> Take My Job?
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            A high-fidelity AI risk auditor for modern professionals.
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
+            Find out if AI could do your job. Just paste your LinkedIn profile link to see your risk level and get a clear plan to stay ahead of the curve.
           </p>
         </header>
       )}
