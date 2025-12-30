@@ -13,7 +13,10 @@ export const analyzeJobRisk = async (profileUrl: string): Promise<AssessmentResu
     
     EXTRACTION REQUIREMENTS:
     1. NAME: Extract the person's full name clearly from the profile.
-    2. CURRENT ROLE: Identify the CURRENT headline title or MOST RECENT job title explicitly mentioned on the profile. Ensure the 'role' field reflects this specific professional title.
+    2. PROFESSIONAL ROLE: Synthesize a concise, high-fidelity job description for the 'role' field. 
+       - PRIMARY SOURCE: The current LinkedIn headline title.
+       - SECONDARY SOURCE: The most recent job titles in their experience section.
+       - FORMAT: Combine these to reflect their current professional identity accurately (e.g., "Senior Software Engineer & AI Consultant" or "Creative Director at X").
     3. INDUSTRY: Identify the primary industry they operate in based on their work history.
 
     SKILLS ANALYSIS REQUIREMENT:
@@ -24,11 +27,11 @@ export const analyzeJobRisk = async (profileUrl: string): Promise<AssessmentResu
        - Strategic importance to their current job title and industry.
     3. Rank these 5 skills in order of prominence (from most essential/frequent to least).
     4. For each, provide automation potential (0-100) and the irreplaceable human value.
-    5. PROVIDE A SKILLS METHODOLOGY: Write a short, 1-2 sentence note explaining how these specific 5 skills were identified (e.g., "Identified based on recurring themes in your recent project lead roles and core technical competencies expected in [Industry]").
+    5. PROVIDE A SKILLS METHODOLOGY: Write a short, 1-2 sentence note explaining how these specific 5 skills were identified.
 
     CAREER GUIDANCE REQUIREMENT:
     1. Offer EXACTLY 3 distinct suggestions for career growth.
-    2. Each MUST use a specific career framework (e.g., Ikigai, Skill Stacking, T-Shaped, or a relevant invented one).
+    2. Each MUST use a specific career framework (e.g., Ikigai, Skill Stacking, T-Shaped).
     3. Use easy, accessible, and encouraging language. Avoid jargon.
 
     EVALUATION RUBRIC:

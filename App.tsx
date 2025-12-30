@@ -192,11 +192,11 @@ const App: React.FC = () => {
              </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch auto-rows-min">
             
-            {/* ROW 1 LEFT: Risk (4 Cols) */}
-            <div className="md:col-span-4 h-full">
-              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 h-full flex flex-col">
+            {/* ROW 1: Risk (4) & Skills (8) */}
+            <div className="md:col-span-4 h-full flex flex-col">
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex-grow flex flex-col">
                 <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center">
                   <i className="fas fa-shield-halved mr-2 text-indigo-500"></i> Risk Assessment
                 </h3>
@@ -211,9 +211,8 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* ROW 1 RIGHT: Skills (8 Cols) */}
-            <div className="md:col-span-8 h-full">
-              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 h-full flex flex-col">
+            <div className="md:col-span-8 h-full flex flex-col">
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex-grow flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center">
                     <i className="fas fa-chart-simple mr-2 text-indigo-500"></i> Skills Distribution
@@ -232,7 +231,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* ROW 2 LEFT: Archetype (4 Cols) - Now explicitly a new grid row start */}
+            {/* ROW 2: Archetype (4) & Advice/Roadmap (8) - Explicit horizontal alignment */}
             <div className="md:col-span-4 h-full">
               <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden h-full flex flex-col justify-end min-h-[340px]">
                 <div className="absolute top-4 right-4 text-indigo-500/20 text-7xl rotate-12 pointer-events-none">
@@ -250,27 +249,26 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* ROW 2 RIGHT: Advice & Roadmap (8 Cols) - Aligned to same start level as Archetype */}
             <div className="md:col-span-8 h-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-                <div className="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg flex flex-col justify-center min-h-[200px]">
-                  <i className="fas fa-quote-left text-3xl text-indigo-400/50 mb-4"></i>
-                  <p className="text-lg font-bold leading-relaxed italic">
+                <div className="bg-indigo-600 rounded-3xl p-8 text-white shadow-lg flex flex-col justify-center min-h-[340px]">
+                  <i className="fas fa-quote-left text-3xl text-indigo-400/50 mb-6"></i>
+                  <p className="text-lg md:text-xl font-bold leading-relaxed italic">
                     {result.guidance.strategicAdvice}
                   </p>
                 </div>
                 
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col">
-                  <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-5 flex items-center">
+                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 flex flex-col h-full">
+                  <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center">
                     <i className="fas fa-route mr-2 text-emerald-500"></i> Action Roadmap
                   </h3>
-                  <div className="space-y-3 flex-grow">
+                  <div className="space-y-4 flex-grow">
                     {result.guidance.positiveActionPlan.map((step, idx) => (
-                      <div key={idx} className="flex items-center space-x-3 p-3 rounded-xl bg-slate-50 border border-slate-100 group hover:border-emerald-200 transition-all">
-                        <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] font-black shrink-0">
+                      <div key={idx} className="flex items-center space-x-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-emerald-200 transition-all">
+                        <span className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black shrink-0">
                           {idx + 1}
                         </span>
-                        <p className="text-xs text-slate-700 font-bold truncate">{step}</p>
+                        <p className="text-xs text-slate-700 font-bold leading-snug">{step}</p>
                       </div>
                     ))}
                   </div>
