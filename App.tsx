@@ -192,15 +192,15 @@ const App: React.FC = () => {
              </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
             
-            {/* Column 1: Risk & Summary (4 Cols) */}
-            <div className="md:col-span-4 space-y-6">
-              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+            {/* ROW 1 LEFT: Risk (4 Cols) */}
+            <div className="md:col-span-4 h-full">
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 h-full flex flex-col">
                 <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center">
                   <i className="fas fa-shield-halved mr-2 text-indigo-500"></i> Risk Assessment
                 </h3>
-                <div className="scale-90 -mt-4">
+                <div className="scale-90 flex-grow flex items-center justify-center">
                   <RiskGauge score={result.riskScore} level={result.overallRisk} />
                 </div>
                 <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
@@ -209,36 +209,20 @@ const App: React.FC = () => {
                   </p>
                 </div>
               </div>
-
-              {/* Archetype / Human Edge */}
-              <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden h-[340px] flex flex-col justify-end">
-                <div className="absolute top-4 right-4 text-indigo-500/20 text-7xl rotate-12">
-                  <i className="fas fa-fingerprint"></i>
-                </div>
-                <div className="relative z-10 space-y-3">
-                  <span className="px-3 py-1 bg-indigo-500/20 rounded-full text-[10px] font-black uppercase tracking-widest text-indigo-300 border border-indigo-500/30">
-                    Your Archetype
-                  </span>
-                  <h3 className="text-2xl font-black tracking-tight">{result.humanCentricEdge.archetype}</h3>
-                  <p className="text-sm text-indigo-100/80 leading-relaxed font-medium line-clamp-6">
-                    {result.humanCentricEdge.explanation}
-                  </p>
-                </div>
-              </div>
             </div>
 
-            {/* Column 2: Skills & Roadmap (8 Cols) */}
-            <div className="md:col-span-8 space-y-6">
-              
-              {/* Top Row: Skills Analysis */}
-              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+            {/* ROW 1 RIGHT: Skills (8 Cols) */}
+            <div className="md:col-span-8 h-full">
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 h-full flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center">
                     <i className="fas fa-chart-simple mr-2 text-indigo-500"></i> Skills Distribution
                   </h3>
                   <span className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">AI Exposure Rating</span>
                 </div>
-                <SkillChart skills={result.skillsAnalysis} />
+                <div className="flex-grow">
+                  <SkillChart skills={result.skillsAnalysis} />
+                </div>
                 <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start">
                   <i className="fas fa-info-circle text-indigo-400 mr-2 text-xs mt-0.5"></i>
                   <p className="text-[10px] text-slate-500 font-medium italic leading-snug">
@@ -246,21 +230,41 @@ const App: React.FC = () => {
                   </p>
                 </div>
               </div>
+            </div>
 
-              {/* Bottom Row: Advice & Roadmap Side-by-Side */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg flex flex-col justify-center">
+            {/* ROW 2 LEFT: Archetype (4 Cols) - Now explicitly a new grid row start */}
+            <div className="md:col-span-4 h-full">
+              <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden h-full flex flex-col justify-end min-h-[340px]">
+                <div className="absolute top-4 right-4 text-indigo-500/20 text-7xl rotate-12 pointer-events-none">
+                  <i className="fas fa-fingerprint"></i>
+                </div>
+                <div className="relative z-10 space-y-3">
+                  <span className="inline-block px-3 py-1 bg-indigo-500/20 rounded-full text-[10px] font-black uppercase tracking-widest text-indigo-300 border border-indigo-500/30">
+                    Your Archetype
+                  </span>
+                  <h3 className="text-2xl font-black tracking-tight">{result.humanCentricEdge.archetype}</h3>
+                  <p className="text-sm text-indigo-100/80 leading-relaxed font-medium">
+                    {result.humanCentricEdge.explanation}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ROW 2 RIGHT: Advice & Roadmap (8 Cols) - Aligned to same start level as Archetype */}
+            <div className="md:col-span-8 h-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+                <div className="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg flex flex-col justify-center min-h-[200px]">
                   <i className="fas fa-quote-left text-3xl text-indigo-400/50 mb-4"></i>
                   <p className="text-lg font-bold leading-relaxed italic">
                     {result.guidance.strategicAdvice}
                   </p>
                 </div>
                 
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col">
                   <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-5 flex items-center">
                     <i className="fas fa-route mr-2 text-emerald-500"></i> Action Roadmap
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-3 flex-grow">
                     {result.guidance.positiveActionPlan.map((step, idx) => (
                       <div key={idx} className="flex items-center space-x-3 p-3 rounded-xl bg-slate-50 border border-slate-100 group hover:border-emerald-200 transition-all">
                         <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] font-black shrink-0">
