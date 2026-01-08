@@ -19,6 +19,11 @@ export const analyzeJobRisk = async (profileUrl: string): Promise<AssessmentResu
        - FORMAT: Combine these to reflect their current professional identity accurately (e.g., "Senior Software Engineer & AI Consultant" or "Creative Director at X").
     3. INDUSTRY: Identify the primary industry they operate in based on their work history.
 
+    RISK ASSESSMENT REQUIREMENT:
+    1. Calculate a Risk Score (0-100).
+    2. PROVIDE A RISK METHODOLOGY NOTE: Explain in 1-2 lines the logic behind the score calculation (e.g., balance of routine cognitive tasks vs. complex human negotiation). 
+    3. MANDATORY DISCLAIMER: The note MUST include the phrase: "This score is indicative and may not be accurate."
+
     SKILLS ANALYSIS REQUIREMENT:
     1. Identify the top 5 most predominant skills. 
     2. CRITERIA FOR PREDOMINANCE: 
@@ -64,6 +69,7 @@ export const analyzeJobRisk = async (profileUrl: string): Promise<AssessmentResu
           overallRisk: { type: Type.STRING, enum: ['Low', 'Medium', 'High'] },
           riskScore: { type: Type.NUMBER },
           justification: { type: Type.STRING },
+          riskMethodology: { type: Type.STRING },
           skillsAnalysis: {
             type: Type.ARRAY,
             minItems: 5,
@@ -110,7 +116,7 @@ export const analyzeJobRisk = async (profileUrl: string): Promise<AssessmentResu
             required: ['strategicAdvice', 'frameworks', 'positiveActionPlan']
           }
         },
-        required: ['name', 'role', 'industry', 'overallRisk', 'riskScore', 'justification', 'skillsAnalysis', 'skillsMethodology', 'humanCentricEdge', 'guidance']
+        required: ['name', 'role', 'industry', 'overallRisk', 'riskScore', 'justification', 'riskMethodology', 'skillsAnalysis', 'skillsMethodology', 'humanCentricEdge', 'guidance']
       }
     }
   });

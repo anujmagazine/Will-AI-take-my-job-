@@ -208,6 +208,12 @@ const App: React.FC = () => {
                     {result.justification}
                   </p>
                 </div>
+                <div className="mt-4 p-3 border-t border-slate-100 flex items-start gap-2">
+                  <i className="fas fa-info-circle text-indigo-300 text-[10px] mt-0.5"></i>
+                  <p className="text-[10px] text-slate-400 font-medium italic leading-relaxed">
+                    {result.riskMethodology}
+                  </p>
+                </div>
               </div>
             </div>
 

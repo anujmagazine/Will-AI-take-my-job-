@@ -20,6 +20,7 @@ export interface AssessmentResult {
   overallRisk: RiskLevel;
   riskScore: number; // 0 to 100
   justification: string;
+  riskMethodology: string; // Brief note on how the score was calculated + disclaimer
   skillsAnalysis: SkillImpact[];
   skillsMethodology: string; // Brief explanation of skill extraction logic
   humanCentricEdge: {
